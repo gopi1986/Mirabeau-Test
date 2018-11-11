@@ -1,0 +1,112 @@
+﻿
+@model Mirabeau_Test.Models.AirportViewModel
+
+<!doctype html>
+<html>
+<head>
+    <title>Mirabeau Airport Test Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.js"></script>
+</head>
+<body>
+    @if (Model != null)
+    {
+        if (Model.Countries != null && Model.Countries.Any())
+        {
+    <div>
+        <div align="center" style="width: 100%;font-size: 30px"><b>Mirabeau Coding Assignment</b></div>
+        <br />
+        <br />
+        <br />
+        @Html.ActionLink("Click here to calculate distance between two airports", "Distance", "Airport")
+        <br />
+        <br />
+        <b>Filter By Country</b>
+        <select id="countries">
+            <option value="">Select a Country</option>
+            @foreach (var country in Model.Countries)
+            {
+                <option value="@country">@country</option>
+            }
+        </select>
+    </div>
+        }
+        <br />
+        <br />
+        <br />
+        if (Model.Airports != null && Model.Airports.Any())
+        {
+            <table id="airports" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Airport Name</th>
+                        <th>Transport Association</th>
+                        <th>County</th>
+                        <th>Continent</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Longitude</th>
+                        <th>Latitude</th>
+                        <th>Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var airport in Model.Airports)
+                    {
+                        <tr>
+                            <td>@airport.name</td>
+                            <td>@airport.iata</td>
+                            <td>@airport.iso</td>
+                            <td>@airport.continent</td>
+                            <td>@airport.type</td>
+                            <td>@airport.status</td>
+                            <td>@airport.lon</td>
+                            <td>@airport.lat</td>
+                            <td>@airport.size</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+
+    <script>
+        var uri = 'airport/filterbycountry';
+        $(document).ready(function () {
+            $('#airports').DataTable();
+        });
+
+        $(document).ready(function () {
+            $("#countries").change(function () {
+                var selectedCountry = $(this).children("option:selected").val();
+                $.getJSON(uri,
+                    { country: selectedCountry },
+                    function (json) {
+                        $("#airports").dataTable().fnDestroy();
+                        $("#airports").find("tr:gt(0)").remove();
+
+                        if (json !== null && json.length > 0) {
+                            var tr;
+                            for (var i = 0; i < json.length; i++) {
+                                tr = $('<tr/>');
+                                tr.append("<td>" + json[i].name + "</td>");
+                                tr.append("<td>" + json[i].iata + "</td>");
+                                tr.append("<td>" + json[i].iso + "</td>");
+                                tr.append("<td>" + json[i].continent + "</td>");
+                                tr.append("<td>" + json[i].type + "</td>");
+                                tr.append("<td>" + json[i].status + "</td>");
+                                tr.append("<td>" + json[i].lon + "</td>");
+                                tr.append("<td>" + json[i].lat + "</td>");
+                                tr.append("<td>" + json[i].size + "</td>");
+                                $("#airports").append(tr);
+                            }
+                            $('#airports').DataTable();
+                        }
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

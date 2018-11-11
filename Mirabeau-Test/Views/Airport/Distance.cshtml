@@ -1,0 +1,91 @@
+﻿@model Mirabeau_Test.Models.DistanceViewModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Mirabeau Airport Distance Demo</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    @if (Model != null && Model.Airports != null && Model.Airports.Any())
+    {
+        <div>
+            <div align="center" style="width: 100%; font-size: 30px">
+                <b>Mirabeau Coding Assignment</b>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <b>From Airport</b>
+            <select id="fromAirport">
+                <option value="">Select from Airport</option>
+                @foreach (var airport in Model.Airports)
+                {
+                    <option value="@airport">@airport</option>
+                }
+            </select>
+            <b>To Airport</b>
+            <select id="toAirport">
+                <option value="">Select to Airport</option>
+                @foreach (var airport in Model.Airports)
+                {
+                    <option value="@airport">@airport</option>
+                }
+            </select>
+            <input type="button" value="Distance" onclick="CalculateDistance()"/>
+            <br/>
+            <br/>
+            <p id="distanceResult"></p>
+        </div>
+        <br/>
+        <br/>
+        <br/>
+    }
+
+<script>
+    var uri = '/airport/CalculateDistance';
+
+    function CalculateDistance() {
+        clearFields();
+        var fromAirport = $("#fromAirport").children("option:selected").val();
+        var toAirport = $("#toAirport").children("option:selected").val();
+        var isValid = isValidInput(fromAirport, toAirport);
+        if (isValid === false)
+            return false;
+
+        $.getJSON(uri,
+                {
+                    fromIata: fromAirport,
+                    toIata: toAirport
+                })
+            .done(function(data) {
+                $('#distanceResult').html("Distance between <b>" +
+                    fromAirport +
+                    "</b> and <b>" +
+                    toAirport +
+                    "</b> is <b>" +
+                    data +
+                    "</b> Kilometers");
+            });
+    }
+    
+    function isValidInput(fromAirport, toAirport) {
+        if ($.trim(fromAirport).length === 0 || $.trim(toAirport).length === 0) {
+            $('#distanceResult').text("Please select both from and to airports");
+            $('#distanceResult').css("color", "red");
+            return false;
+        }
+        if (fromAirport===toAirport) {
+            $('#distanceResult').text("From and To airports cannot be same");
+            $('#distanceResult').css("color", "red");
+            return false;
+        }
+    }
+    function clearFields() {
+        $('#distanceResult').text("");
+        $('#distanceResult').css("color", "");
+    }
+</script>
+</body>
+</html>
